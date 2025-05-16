@@ -3,7 +3,7 @@
 Este proyecto construye un **agente de IA** que genera un reporte económico diario con:
 
 - 📰 Extracción automática de noticias económicas de Yahoo Finance
-- 📊 Datos financieros (divisas, petróleo, tasas de interés, oro e índices accionarios)
+- 📊 Extracción automática de datos financieros (divisas, petróleo, tasas de interés, oro e índices accionarios)
 - 🤖 Resumen automatizado con IA (OpenAI)
 - 📄 Reporte final en PDF con texto y gráficas
 
