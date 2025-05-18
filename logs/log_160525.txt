@@ -1,0 +1,439 @@
+[2025-05-16 16:22:17] 
+❌ Error ejecutando market_scraper.ipynb:
+[Errno 2] No such file or directory: './src/market_scraper.ipynb'
+[2025-05-16 16:22:17] 
+❌ Error ejecutando news_scraper.ipynb:
+[Errno 2] No such file or directory: './src/news_scraper.ipynb'
+[2025-05-16 16:22:17] 
+❌ Error ejecutando data_updater.ipynb:
+[Errno 2] No such file or directory: './src/data_updater.ipynb'
+[2025-05-16 16:22:17] 
+❌ Error ejecutando analysis_agent.ipynb:
+[Errno 2] No such file or directory: './src/analysis_agent.ipynb'
+[2025-05-16 16:22:17] 
+❌ Error ejecutando market_visualizer.ipynb:
+[Errno 2] No such file or directory: './src/market_visualizer.ipynb'
+[2025-05-16 16:22:17] 
+❌ Error ejecutando reporte.ipynb:
+[Errno 2] No such file or directory: './src/reporte.ipynb'
+[2025-05-16 16:48:52] 
+❌ Error ejecutando market_scraper.ipynb:
+An error occurred while executing the following cell:
+------------------
+from datetime import datetime
+import os
+import json
+
+# Define ubicación actual
+src_path = "./src"
+os.chdir(src_path)
+
+# Asegurar carpeta
+base_dir = "../data"
+os.makedirs(base_dir, exist_ok=True)
+
+# Guardar con fecha del día (scraped_data_ddmmyy.json)
+fecha_hoy = datetime.today().strftime("%d%m%y")
+json_diario = f"scraped_data_{fecha_hoy}.json"
+json_path = os.path.join(base_dir, json_diario)
+
+with open(json_path, "w", encoding="utf-8") as f:
+    json.dump(datos_diarios, f, indent=2, ensure_ascii=False)
+
+print(f"✅ Datos guardados como snapshot diario: {json_path}")
+
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
+Cell [0;32mIn[3], line 7[0m
+[1;32m      5[0m [38;5;66;03m# Define ubicación actual[39;00m
+[1;32m      6[0m src_path [38;5;241m=[39m [38;5;124m"[39m[38;5;124m./src[39m[38;5;124m"[39m
+[0;32m----> 7[0m [43mos[49m[38;5;241;43m.[39;49m[43mchdir[49m[43m([49m[43msrc_path[49m[43m)[49m
+[1;32m      9[0m [38;5;66;03m# Asegurar carpeta[39;00m
+[1;32m     10[0m base_dir [38;5;241m=[39m [38;5;124m"[39m[38;5;124m../data[39m[38;5;124m"[39m
+
+[0;31mFileNotFoundError[0m: [Errno 2] No such file or directory: './src'
+
+[2025-05-16 16:49:05] 
+❌ Error ejecutando news_scraper.ipynb:
+An error occurred while executing the following cell:
+------------------
+import json
+
+# Guardar las noticias extraídas en un archivo JSON
+noticias = get_top_news(n=3)
+
+# Guardamos cada noticia con título, URL y contenido
+noticias_extraidas = []
+
+for title, url in noticias:
+    contenido = extract_article_text(url, max_paragraphs=3)
+    noticia = {
+        "titulo": title,
+        "url": url,
+        "contenido": contenido
+    }
+    noticias_extraidas.append(noticia)
+
+# Define ubicación actual
+src_path = "./src"
+os.chdir(src_path)
+
+# Guardar en un archivo JSON
+output_path = "../data/noticias_yahoo.json"
+with open(output_path, "w", encoding="utf-8") as f:
+    json.dump(noticias_extraidas, f, indent=2, ensure_ascii=False)
+
+print(f"✅ Noticias guardadas en: {output_path}")
+
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mNameError[0m                                 Traceback (most recent call last)
+Cell [0;32mIn[3], line 20[0m
+[1;32m     18[0m [38;5;66;03m# Define ubicación actual[39;00m
+[1;32m     19[0m src_path [38;5;241m=[39m [38;5;124m"[39m[38;5;124m./src[39m[38;5;124m"[39m
+[0;32m---> 20[0m [43mos[49m[38;5;241m.[39mchdir(src_path)
+[1;32m     22[0m [38;5;66;03m# Guardar en un archivo JSON[39;00m
+[1;32m     23[0m output_path [38;5;241m=[39m [38;5;124m"[39m[38;5;124m../data/noticias_yahoo.json[39m[38;5;124m"[39m
+
+[0;31mNameError[0m: name 'os' is not defined
+
+[2025-05-16 16:49:06] 
+❌ Error ejecutando data_updater.ipynb:
+An error occurred while executing the following cell:
+------------------
+import json
+import pandas as pd
+import os
+
+# Define ubicación actual
+src_path = "./src"
+os.chdir(src_path)
+
+# Cargar datos del archivo JSON
+json_path = "../data/scraped_data.json"
+with open(json_path, "r", encoding="utf-8") as f:
+    datos = json.load(f)
+
+fecha = datos["fecha"]
+fx_data = datos.get("fx", {})
+crude_data = datos.get("crude", {})
+rates_data = datos.get("rates", {})
+
+# Usar directamente los símbolos ISO como nombres de columna para FX
+fx_row = {"Fecha": fecha}
+for symbol, value in fx_data.items():
+    if symbol == "DX-Y.NYB":
+        fx_row["DXY"] = value
+    elif symbol.endswith("=X"):
+        fx_row[symbol.replace("=X", "")] = value
+    else:
+        fx_row[symbol] = value
+
+# Para tasas, renombramos a US10Y
+rates_row = {"Fecha": fecha}
+if "USY" in rates_data:
+    rates_row["USY"] = rates_data["USY"]
+
+# Crudo permanece igual
+crude_row = {"Fecha": fecha, **crude_data}
+
+# Función robusta para insertar fila solo si la fecha no existe
+def append_row_by_symbol(csv_path, row_dict):
+    new_row = pd.DataFrame([row_dict])
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path)
+
+        # Evitar duplicados por fecha
+        if "Fecha" in df.columns and row_dict["Fecha"] in df["Fecha"].astype(str).values:
+            print(f"⚠️ La fecha {row_dict['Fecha']} ya existe en {os.path.basename(csv_path)}. No se agregó.")
+            return df.tail(3)
+
+        # Alinear columnas a las del archivo
+        aligned_row = {col: new_row.iloc[0].get(col, None) for col in df.columns}
+        aligned_row = pd.DataFrame([aligned_row])
+        df = pd.concat([df, aligned_row], ignore_index=True)
+        df = df.loc[:, ~df.columns.duplicated()]
+    else:
+        df = new_row
+
+    df.to_csv(csv_path, index=False)
+    return df.tail(3)
+
+# Aplicar a los CSV
+fx_tail = append_row_by_symbol("../data/fx_data.csv", fx_row)
+crude_tail = append_row_by_symbol("../data/crude_prices.csv", crude_row)
+rates_tail = append_row_by_symbol("../data/rates_data.csv", rates_row)
+
+# Mostrar resumen
+print("✔️ Últimos registros añadidos:")
+display(fx_tail)
+display(crude_tail)
+display(rates_tail)
+
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
+Cell [0;32mIn[1], line 7[0m
+[1;32m      5[0m [38;5;66;03m# Define ubicación actual[39;00m
+[1;32m      6[0m src_path [38;5;241m=[39m [38;5;124m"[39m[38;5;124m./src[39m[38;5;124m"[39m
+[0;32m----> 7[0m [43mos[49m[38;5;241;43m.[39;49m[43mchdir[49m[43m([49m[43msrc_path[49m[43m)[49m
+[1;32m      9[0m [38;5;66;03m# Cargar datos del archivo JSON[39;00m
+[1;32m     10[0m json_path [38;5;241m=[39m [38;5;124m"[39m[38;5;124m../data/scraped_data.json[39m[38;5;124m"[39m
+
+[0;31mFileNotFoundError[0m: [Errno 2] No such file or directory: './src'
+
+[2025-05-16 16:49:07] 
+❌ Error ejecutando analysis_agent.ipynb:
+An error occurred while executing the following cell:
+------------------
+import json
+from openai import OpenAI
+
+# Define ubicación actual
+src_path = "./src"
+os.chdir(src_path)
+
+# Leer noticias desde el JSON
+with open("../data/noticias_yahoo.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+# Extraer los contenidos individuales
+noticias = [item["contenido"] for item in data]
+
+# Unir en un solo texto para enviar al modelo
+noticias_texto = "\n\n".join(noticias)
+
+# Inicializar cliente de OpenAI
+openai_client = OpenAI()
+
+# Llamada al modelo con estructura de resumen jerárquico
+respuesta = openai_client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {
+            "role": "system",
+            "content": (
+                "Eres un analista económico. Recibirás tres noticias económicas en inglés. "
+                "Tu tarea es traducir cada noticia al español y presentar su resumen de cada noticia en el siguiente formato:\n\n"
+                "- **[Título en español que resuma la noticia]**\n"
+                "  - [subpunto 1 explicativo]\n"
+                "  - [subpunto 2 explicativo]\n"
+                "  - …\n\n"
+                "Usa un lenguaje claro y profesional como si estuvieras escribiendo para un boletín financiero."
+            )
+        },
+        {
+            "role": "user",
+            "content": noticias_texto
+        }
+    ],
+    temperature=0.3
+)
+
+# Mostrar resultado
+bullets_noticias = respuesta.choices[0].message.content
+print("Noticias relevantes:\n")
+print(bullets_noticias)
+
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mNameError[0m                                 Traceback (most recent call last)
+Cell [0;32mIn[1], line 6[0m
+[1;32m      4[0m [38;5;66;03m# Define ubicación actual[39;00m
+[1;32m      5[0m src_path [38;5;241m=[39m [38;5;124m"[39m[38;5;124m./src[39m[38;5;124m"[39m
+[0;32m----> 6[0m [43mos[49m[38;5;241m.[39mchdir(src_path)
+[1;32m      8[0m [38;5;66;03m# Leer noticias desde el JSON[39;00m
+[1;32m      9[0m [38;5;28;01mwith[39;00m [38;5;28mopen[39m([38;5;124m"[39m[38;5;124m../data/noticias_yahoo.json[39m[38;5;124m"[39m, [38;5;124m"[39m[38;5;124mr[39m[38;5;124m"[39m, encoding[38;5;241m=[39m[38;5;124m"[39m[38;5;124mutf-8[39m[38;5;124m"[39m) [38;5;28;01mas[39;00m f:
+
+[0;31mNameError[0m: name 'os' is not defined
+
+[2025-05-16 16:49:09] 
+❌ Error ejecutando market_visualizer.ipynb:
+An error occurred while executing the following cell:
+------------------
+import os
+from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import json
+
+# Estilo
+plt.style.use("seaborn-v0_8-darkgrid")
+sns.set_palette("Set2")
+
+# Define ubicación actual
+src_path = "./src"
+os.chdir(src_path)
+# Crear carpeta local
+assets_dir = "../assets"
+os.makedirs(assets_dir, exist_ok=True)
+
+# Cargar archivos
+fx_data = pd.read_csv("../data/fx_data.csv", parse_dates=["Fecha"], dayfirst=True).set_index("Fecha")
+crude_data = pd.read_csv("../data/crude_prices.csv", parse_dates=["Fecha"], dayfirst=True).set_index("Fecha")
+rates_data = pd.read_csv("../data/rates_data.csv", parse_dates=["Fecha"], dayfirst=True).set_index("Fecha")
+
+fx_data = fx_data.apply(pd.to_numeric, errors="coerce")
+crude_data = crude_data.apply(pd.to_numeric, errors="coerce")
+rates_data = rates_data.apply(pd.to_numeric, errors="coerce")
+
+with open("../data/scraped_data.json", "r", encoding="utf-8") as f:
+    scraped = json.load(f)
+
+# Gráfica tipo de cambio
+fig, ax = plt.subplots(figsize=(10, 4))
+fx_data["MXN"].dropna().last("30D").plot(ax=ax, title="Tipo de cambio: MXN")
+ax.set_ylabel("Valor vs USD")
+ax.set_xlabel("Fecha")
+fig.tight_layout()
+fig.savefig(f"{assets_dir}/tipo_cambio.png", dpi=300)
+plt.close(fig)
+
+# Gráfica tasa de interés
+fig, ax = plt.subplots(figsize=(10, 4))
+rates_data["USY"].dropna().last("30D").plot(ax=ax, title="Tasa de interés 10 años (EE.UU.)")
+ax.set_ylabel("%")
+ax.set_xlabel("Fecha")
+fig.tight_layout()
+fig.savefig(f"{assets_dir}/tasa_10y.png", dpi=300)
+plt.close(fig)
+
+# Gráfica precios del crudo
+crude_filtered = crude_data.loc[crude_data.index >= "2023-01-01"]
+fig, ax = plt.subplots(figsize=(10, 5))
+crude_filtered.plot(ax=ax, title="Precios del petróleo desde enero 2023")
+ax.set_ylabel("USD por barril")
+ax.set_xlabel("Fecha")
+fig.tight_layout()
+fig.savefig(f"{assets_dir}/crudo.png", dpi=300)
+plt.close(fig)
+
+# Gráfica niveles de índices (horizontal)
+niveles = scraped.get("indices", {})
+df_niveles = pd.DataFrame(niveles.items(), columns=["Índice", "Nivel"]).dropna()
+df_niveles = df_niveles.sort_values("Nivel", ascending=True)
+fig, ax = plt.subplots(figsize=(12, 8))
+sns.barplot(data=df_niveles, y="Índice", x="Nivel", ax=ax, palette="pastel")
+ax.set_title("Niveles actuales de índices bursátiles")
+ax.set_xlabel("Puntos")
+ax.set_ylabel("")
+fig.tight_layout()
+fig.savefig(f"{assets_dir}/niveles_indices.png", dpi=300)
+plt.close(fig)
+
+# Gráfica niveles coloreados
+fig, ax = plt.subplots(figsize=(12, 5))
+norm = plt.Normalize(df_niveles["Nivel"].min(), df_niveles["Nivel"].max())
+colors = plt.cm.viridis(norm(df_niveles["Nivel"]))
+sns.barplot(x="Índice", y="Nivel", data=df_niveles, palette=colors, ax=ax)
+ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+ax.set_title("Niveles actuales de índices bursátiles (coloreado)")
+fig.tight_layout()
+fig.savefig(f"{assets_dir}/niveles_indices_colores.png", dpi=300)
+plt.close(fig)
+
+# Gráfica de variación diaria
+variaciones = scraped.get("indices_variacion", {})
+df_var = pd.DataFrame(variaciones.items(), columns=["Índice", "Variación"]).dropna()
+fig, ax = plt.subplots(figsize=(12, 5))
+sns.barplot(data=df_var, x="Índice", y="Variación", palette="coolwarm", ax=ax)
+ax.axhline(0, color="gray", linestyle="--")
+ax.set_title("Variación diaria de índices bursátiles")
+ax.set_ylabel("% diario")
+ax.set_xlabel("")
+ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+fig.tight_layout()
+fig.savefig(f"{assets_dir}/variacion_indices.png", dpi=300)
+plt.close(fig)
+
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
+Cell [0;32mIn[1], line 14[0m
+[1;32m     12[0m [38;5;66;03m# Define ubicación actual[39;00m
+[1;32m     13[0m src_path [38;5;241m=[39m [38;5;124m"[39m[38;5;124m./src[39m[38;5;124m"[39m
+[0;32m---> 14[0m [43mos[49m[38;5;241;43m.[39;49m[43mchdir[49m[43m([49m[43msrc_path[49m[43m)[49m
+[1;32m     15[0m [38;5;66;03m# Crear carpeta local[39;00m
+[1;32m     16[0m assets_dir [38;5;241m=[39m [38;5;124m"[39m[38;5;124m../assets[39m[38;5;124m"[39m
+
+[0;31mFileNotFoundError[0m: [Errno 2] No such file or directory: './src'
+
+[2025-05-16 16:49:10] 
+❌ Error ejecutando reporte.ipynb:
+An error occurred while executing the following cell:
+------------------
+import os
+from IPython.display import display, Markdown
+from datetime import datetime
+from PIL import Image
+import matplotlib.pyplot as plt
+
+# Define ubicación actual
+src_path = "./src"
+os.chdir(src_path)
+
+# 📅 Título del reporte
+hoy = datetime.today().strftime("%d de %B de %Y")
+display(Markdown(f"# 📊 Mercados Financieros – {hoy}"))
+
+# 📌 Bullets de análisis
+with open("../data/bullets_mercado.txt", "r", encoding="utf-8") as f:
+    bullets_mercado = f.read()
+
+with open("../data/bullets_noticias.txt", "r", encoding="utf-8") as f:
+    bullets_noticias = f.read()
+
+display(Markdown("## 📰 Noticias relevantes"))
+display(Markdown(bullets_noticias))
+
+display(Markdown("## 💹 Análisis del mercado"))
+display(Markdown(bullets_mercado))
+
+# 📈 Insertar todas las gráficas
+graficas = [
+    ("Variación diaria de índices bursátiles", "variacion_indices.png"),
+    ("Niveles de índices (estilo colores)", "niveles_indices_colores.png"),
+    ("Tipo de cambio frente al USD", "tipo_cambio.png"),
+    ("Tasa de interés de 10 años (EE.UU.)", "tasa_10y.png"),
+    ("Precios del petróleo", "crudo.png")
+]
+
+assets_dir = "../assets"
+
+for titulo, archivo in graficas:
+    path = os.path.join(assets_dir, archivo)
+    if os.path.exists(path):
+        display(Markdown(f"### 📌 {titulo}"))
+        img = Image.open(path)
+        plt.figure(figsize=(10, 5))
+        plt.imshow(img)
+        plt.axis("off")
+        plt.tight_layout()
+        plt.show()
+
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
+Cell [0;32mIn[2], line 9[0m
+[1;32m      7[0m [38;5;66;03m# Define ubicación actual[39;00m
+[1;32m      8[0m src_path [38;5;241m=[39m [38;5;124m"[39m[38;5;124m./src[39m[38;5;124m"[39m
+[0;32m----> 9[0m [43mos[49m[38;5;241;43m.[39;49m[43mchdir[49m[43m([49m[43msrc_path[49m[43m)[49m
+[1;32m     11[0m [38;5;66;03m# 📅 Título del reporte[39;00m
+[1;32m     12[0m hoy [38;5;241m=[39m datetime[38;5;241m.[39mtoday()[38;5;241m.[39mstrftime([38;5;124m"[39m[38;5;132;01m%d[39;00m[38;5;124m de [39m[38;5;124m%[39m[38;5;124mB de [39m[38;5;124m%[39m[38;5;124mY[39m[38;5;124m"[39m)
+
+[0;31mFileNotFoundError[0m: [Errno 2] No such file or directory: './src'
+

@@ -1,0 +1,10 @@
+openai
+python-dotenv
+beautifulsoup4
+requests
+lxml
+yfinance
+matplotlib
+fpdf
+pandas
+yfinance
